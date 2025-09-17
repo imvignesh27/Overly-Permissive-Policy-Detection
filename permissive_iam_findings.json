@@ -1,0 +1,156 @@
+[
+  {
+    "Entity": "User",
+    "Name": "audit",
+    "Policy": "AdministratorAccess",
+    "Findings": [
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*"
+        ]
+      }
+    ]
+  },
+  {
+    "Entity": "User",
+    "Name": "user1",
+    "Policy": "S3FullAccess",
+    "Findings": [
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*",
+          "arn:aws:s3:::race-vignesh"
+        ]
+      }
+    ]
+  },
+  {
+    "Entity": "User",
+    "Name": "User2",
+    "Policy": "EC2WriteAccess",
+    "Findings": [
+      {
+        "Action": "ec2:createlaunchtemplate",
+        "Resource": [
+          "arn:aws:ec2:us-east-1:777555685093:instance/i-078034714bc02c69d"
+        ]
+      },
+      {
+        "Action": "ec2:runinstances",
+        "Resource": [
+          "arn:aws:ec2:us-east-1:777555685093:instance/i-078034714bc02c69d"
+        ]
+      },
+      {
+        "Action": "ec2:deleteresourcepolicy",
+        "Resource": [
+          "arn:aws:ec2:us-east-1:777555685093:instance/i-078034714bc02c69d"
+        ]
+      }
+    ]
+  },
+  {
+    "Entity": "User",
+    "Name": "user4",
+    "Policy": "LambdaWriteAccess",
+    "Findings": [
+      {
+        "Action": "lambda:addpermission",
+        "Resource": [
+          "arn:aws:lambda:*:777555685093:function:*"
+        ]
+      },
+      {
+        "Action": "lambda:createfunction",
+        "Resource": [
+          "arn:aws:lambda:*:777555685093:function:*"
+        ]
+      },
+      {
+        "Action": "lambda:invokefunction",
+        "Resource": [
+          "arn:aws:lambda:*:777555685093:function:*"
+        ]
+      }
+    ]
+  },
+  {
+    "Entity": "User",
+    "Name": "user5",
+    "Policy": "CloudFormationWriteAccess",
+    "Findings": [
+      {
+        "Action": "cloudformation:createstack",
+        "Resource": [
+          "arn:aws:cloudformation:*:777555685093:stack/*/*"
+        ]
+      }
+    ]
+  },
+  {
+    "Entity": "Role",
+    "Name": "EC2-Admin",
+    "Policy": "AmazonEC2FullAccess",
+    "Findings": [
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*"
+        ]
+      },
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*"
+        ]
+      },
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*"
+        ]
+      },
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*"
+        ]
+      }
+    ]
+  },
+  {
+    "Entity": "Role",
+    "Name": "LambdaAdmin",
+    "Policy": "AWSLambda_FullAccess",
+    "Findings": [
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*"
+        ]
+      },
+      {
+        "Action": "iam:passrole",
+        "Resource": [
+          "*"
+        ]
+      }
+    ]
+  },
+  {
+    "Entity": "Role",
+    "Name": "S3FullAccessRole",
+    "Policy": "S3FullAccess",
+    "Findings": [
+      {
+        "Action": "WildcardDetected",
+        "Resource": [
+          "*",
+          "arn:aws:s3:::race-vignesh"
+        ]
+      }
+    ]
+  }
+]

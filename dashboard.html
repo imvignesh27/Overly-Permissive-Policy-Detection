@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>AWS IAM Permissive Policy Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #0B3D91; }
+        .chart-container { width: 700px; margin-bottom: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 30px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #e1ecf9; }
+        .no-data { font-size: 1.2em; font-weight: bold; color: green; }
+        .summary { font-size: 1.1em; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>AWS IAM Permissive Policy Dashboard</h1>
+    <div id="summary" class="summary">Loading data...</div>
+
+    <div class="chart-container">
+        <canvas id="actionsChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="entitiesChart"></canvas>
+    </div>
+
+    <h2>Detailed Findings</h2>
+    <table id="resultsTable" aria-label="Permissive IAM Policy Findings Table">
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Entity</th>
+                <th>Name</th>
+                <th>Policy</th>
+                <th>Action</th>
+                <th>Resource</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+<script>
+    async function loadFindings() {
+        try {
+            const response = await fetch('permissive_iam_findings.json');
+            if (!response.ok) throw new Error("Failed to load JSON data.");
+            const findings = await response.json();
+
+            // Flatten findings array for easy processing
+            let flatFindings = [];
+            findings.forEach(item => {
+                const entity = item.Entity || "";
+                const name = item.Name || "";
+                const policy = item.Policy || "";
+                (item.Findings || []).forEach(f => {
+                    flatFindings.push({
+                        Entity: entity,
+                        Name: name,
+                        Policy: policy,
+                        Action: f.Action || "",
+                        Resource: (f.Resource || []).join(", ")
+                    });
+                });
+            });
+
+            const summaryDiv = document.getElementById('summary');
+            if (flatFindings.length === 0) {
+                summaryDiv.innerHTML = '<p class="no-data"> No permissive policies found!</p>';
+            } else {
+                summaryDiv.textContent = ` ${flatFindings.length} permissive policy findings detected`;
+            }
+
+            // Count occurrences by Action
+            let actionCounts = {};
+            flatFindings.forEach(f => {
+                actionCounts[f.Action] = (actionCounts[f.Action] || 0) + 1;
+            });
+            const actionLabels = Object.keys(actionCounts);
+            const actionData = Object.values(actionCounts);
+
+            // Count occurrences by Entity type
+            let entityCounts = {};
+            flatFindings.forEach(f => {
+                entityCounts[f.Entity] = (entityCounts[f.Entity] || 0) + 1;
+            });
+            const entityLabels = Object.keys(entityCounts);
+            const entityData = Object.values(entityCounts);
+
+            // Render the Actions bar chart
+            new Chart(document.getElementById('actionsChart'), {
+                type: 'bar',
+                data: {
+                    labels: actionLabels,
+                    datasets: [{
+                        label: 'Permissive Actions',
+                        data: actionData,
+                        backgroundColor: '#0B3D91'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {display: true, text: 'Permissive IAM Actions Frequency'}
+                    },
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Render the Entities bar chart
+            new Chart(document.getElementById('entitiesChart'), {
+                type: 'bar',
+                data: {
+                    labels: entityLabels,
+                    datasets: [{
+                        label: 'Affected Entities',
+                        data: entityData,
+                        backgroundColor: '#f7a600'
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {display: true, text: 'Affected AWS IAM Entity Types'}
+                    },
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Populate the data table with S.No.
+            const tbody = document.querySelector('#resultsTable tbody');
+            flatFindings.forEach((f, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${f.Entity}</td>
+                    <td>${f.Name}</td>
+                    <td>${f.Policy}</td>
+                    <td>${f.Action}</td>
+                    <td>${f.Resource}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            document.getElementById('summary').innerHTML = `<p style="color: red;">Error loading data: ${err.message}</p>`;
+        }
+    }
+
+    loadFindings();
+</script>
+</body>
+</html>

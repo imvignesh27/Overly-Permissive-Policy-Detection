@@ -1,0 +1,14 @@
+---
+- name: Remove IAMWriteAccess inline policy from user3 using iam_policy module
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - amazon.aws
+
+  tasks:
+    - name: Delete inline policy IAMWriteAccess from user3
+      amazon.aws.iam_policy:
+        iam_type: user
+        iam_name: user3
+        policy_name: IAMWriteAccess
+        state: absent
